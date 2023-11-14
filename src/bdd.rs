@@ -1,11 +1,15 @@
 extern crate mysql;
 use mysql::{*, prelude::Queryable};
 
+use std::io::stdin;
+
 pub fn make_bdd(errs:&mut Vec<String>)->bool{
+    let mut entry = String::new();
+    stdin().read_line(&mut entry).unwrap_or(0);
     let opts = Opts::from(
         OptsBuilder::new()
         .user(Some("root"))
-        .pass(Some(""))
+        .pass(Some(entry.as_str()))
         .db_name(None::<&str>)
         .ip_or_hostname(Some("127.0.0.1"))
     );
