@@ -1,7 +1,7 @@
 extern crate mysql;
 use mysql::{*, prelude::Queryable};
 
-pub fn make_bdd()->Result<(),Error>{
+pub fn make_bdd(errs:&mut Vec<String>)->bool{
     let opts = Opts::from(
         OptsBuilder::new()
         .user(Some("root"))
@@ -15,17 +15,21 @@ pub fn make_bdd()->Result<(),Error>{
                 Ok(mut x)=>{
                     let q = "CREATE DATABASE IF NOT EXISTS awesome".to_string();
                 match x.query::<String,String>(q){
-                    Ok(_x)=>{Ok(())},
-                    Err(err)=>{return Err(err)}
+                    Ok(_x)=>{return true},
+                    Err(err)=>{
+                        errs.push(err.to_string());
+                        return false
+                    }
                 }
                 },
                 Err(err)=>{
-                    return Err(err)
+                    errs.push(err.to_string());
+                    return false
                 }
             }            
         },
-        Err(err)=>{
-            Err(err)
+        Err(_err)=>{
+            return false
         }
     }
 }
