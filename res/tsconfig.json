@@ -1,0 +1,14 @@
+// Config Required
+{
+    "compilerOptions": {
+      "module": "ESNext",
+      "noImplicitAny": true,
+      "removeComments": true,
+      "preserveConstEnums": true,
+      "outDir": "./public/",
+      "sourceMap": true
+    },
+    //"include": [""],
+    //"files": [""],
+    //"exclude": [""],
+}

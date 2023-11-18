@@ -1,13 +1,16 @@
 extern crate mysql;
 use mysql::{*, prelude::Queryable};
+use crate::obj::DataBdd;
 
-pub fn make_bdd()->Result<(),Error>{
+use std::sync::MutexGuard;
+
+pub fn make_bdd(bdd:MutexGuard<'_,DataBdd>,errs:&mut Vec<String>)->bool{
     let opts = Opts::from(
         OptsBuilder::new()
-        .user(Some("root"))
-        .pass(Some(""))
+        .user(Some(&bdd.user))
+        .pass(Some(&bdd.password))
         .db_name(None::<&str>)
-        .ip_or_hostname(Some("127.0.0.1"))
+        .ip_or_hostname(Some(&bdd.ip))
     );
     match make_pool(opts){
         Ok(p)=>{
@@ -15,17 +18,21 @@ pub fn make_bdd()->Result<(),Error>{
                 Ok(mut x)=>{
                     let q = "CREATE DATABASE IF NOT EXISTS awesome".to_string();
                 match x.query::<String,String>(q){
-                    Ok(_x)=>{Ok(())},
-                    Err(err)=>{return Err(err)}
+                    Ok(_x)=>{return true},
+                    Err(err)=>{
+                        errs.push(err.to_string());
+                        return false
+                    }
                 }
                 },
                 Err(err)=>{
-                    return Err(err)
+                    errs.push(err.to_string());
+                    return false
                 }
             }            
         },
-        Err(err)=>{
-            Err(err)
+        Err(_err)=>{
+            return false
         }
     }
 }
